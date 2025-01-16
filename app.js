@@ -16,13 +16,12 @@ app.use(express.json());
 app.use('/api',[adminRoutes,userLoginRoutes, deleteRoutes ,courseRoutes, getCourseRoutes,getAllUserRoutes , getUserCourseRoutes , getUserVideoRoutes]);
 app.use('/test', (req,res) => {
   res.send("server working")
-
 })
+const PORT = process.env.DB_PORT;
 // sequelize.sync({force:true})
 sequelize.sync()
   .then(() => {
     console.log("Database connected successfully.");
-    const PORT = 8080;
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
     });

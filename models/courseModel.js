@@ -1,5 +1,5 @@
 const sequelize = require("../config/database");
-const { DataTypes } =require("sequelize")
+const { DataTypes } =require("sequelize");
 const Course = sequelize.define('Course',{
     courseName : {
         type : DataTypes.STRING,
