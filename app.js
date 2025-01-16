@@ -14,7 +14,10 @@ const app = express();
 app.use(express.json());
 
 app.use('/api',[adminRoutes,userLoginRoutes, deleteRoutes ,courseRoutes, getCourseRoutes,getAllUserRoutes , getUserCourseRoutes , getUserVideoRoutes]);
+app.use('/test', (req,res) => {
+  res.send("server working")
 
+})
 // sequelize.sync({force:true})
 sequelize.sync()
   .then(() => {
