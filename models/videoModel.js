@@ -14,10 +14,7 @@ const Video = sequelize.define('Video',{
         type : DataTypes.STRING,
         allowNull:false
     },
-    videoStatus : {
-        type : DataTypes.STRING,
-        allowNull:false
-    },
+
 });
 
 module.exports = Video

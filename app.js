@@ -4,19 +4,16 @@ const sequelize = require("./config/database");
 const adminRoutes = require("./routes/adminRoutes")
 const userLoginRoutes = require("./routes/authRoutes")
 const courseRoutes = require("./routes/courseRoutes")
+const getCourseRoutes = require("./routes/getCoursesRoutes");
+const getAllUserRoutes = require("./routes/getUsersRoutes");
+const getUserCourseRoutes = require("./routes/userCourseRoutes");
+const getUserVideoRoutes = require("./routes/userVideoRoutes");
+const deleteRoutes = require("./routes/deleteRoutes");
 
 const app = express();
 app.use(express.json());
 
-app.use('/admin', adminRoutes);
-app.use('/auth', userLoginRoutes);
-app.use('/courses', courseRoutes);
-
-
-
-
-
-
+app.use('/api',[adminRoutes,userLoginRoutes, deleteRoutes ,courseRoutes, getCourseRoutes,getAllUserRoutes , getUserCourseRoutes , getUserVideoRoutes]);
 
 // sequelize.sync({force:true})
 sequelize.sync()
