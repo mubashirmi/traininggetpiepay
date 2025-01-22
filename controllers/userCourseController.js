@@ -65,6 +65,8 @@ exports.getAllUserCourses = async (req, res) => {
             return {
                 courseId: course.id,
                 courseName: course.courseName,
+                courseCategory: course.courseCategory,
+                courseThumbnailPhoto: course.courseThumbnailPhoto,
                 status: course.UserCourseStatuses?.[0]?.status || 'notStarted',
                 parts: course.Parts.map((part) => ({
                     partId: part.id,
@@ -80,6 +82,71 @@ exports.getAllUserCourses = async (req, res) => {
         });
 
         res.status(200).json(formattedCourses);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+exports.getUserSingleCourses = async (req, res) => {
+    const { userId, courseId } = req.params;
+
+    try {
+        // Fetch the course with user-specific statuses
+        const course = await Course.findOne({
+            where: { id: courseId },
+            include: [
+                {
+                    model: UserCourseStatus,
+                    where: { userId },
+                    required: false, // Include course even if no status exists for the user
+                },
+                {
+                    model: Part,
+                    include: [
+                        {
+                            model: UserPartStatus,
+                            where: { userId },
+                            required: false, // Include parts even if no status exists
+                        },
+                        {
+                            model: Video,
+                            include: [
+                                {
+                                    model: UserVideoStatus,
+                                    where: { userId },
+                                    required: false, // Include videos even if no status exists
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (!course) {
+            return res.status(404).json({ message: 'Course not found for the given user and course ID' });
+        }
+
+        // Format the data to match the desired response structure
+        const formattedCourse = {
+            courseId: course.id,
+            courseName: course.courseName,
+            courseCategory: course.courseCategory,
+            courseThumbnailPhoto: course.courseThumbnailPhoto,
+            status: course.UserCourseStatuses?.[0]?.status || 'notStarted',
+            parts: course.Parts.map((part) => ({
+                partId: part.id,
+                partName: part.partName,
+                status: part.UserPartStatuses?.[0]?.status || 'notStarted',
+                videos: part.Videos.map((video) => ({
+                    videoId: video.id,
+                    videoName: video.videoName,
+                    status: video.UserVideoStatuses?.[0]?.status || 'notStarted',
+                })),
+            })),
+        };
+
+        res.status(200).json(formattedCourse);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
