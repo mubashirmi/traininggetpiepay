@@ -142,6 +142,7 @@ exports.getUserSingleCourses = async (req, res) => {
                 videos: part.Videos.map((video) => ({
                     videoId: video.id,
                     videoName: video.videoName,
+                    videoFile: video.videoFile,
                     status: video.UserVideoStatuses?.[0]?.status || 'notStarted',
                 })),
             })),
