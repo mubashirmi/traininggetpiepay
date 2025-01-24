@@ -10,16 +10,17 @@ const getUserCourseRoutes = require("./routes/userCourseRoutes");
 const getUserVideoRoutes = require("./routes/userVideoRoutes");
 const deleteRoutes = require("./routes/deleteRoutes");
 const editUpdateRoutes = require("./routes/editRoutes");
+const assesmentRoutes = require("./routes/assesmentRoutes");
 
 const app = express();
 app.use(express.json());
 
-app.use('/api',[adminRoutes,userLoginRoutes, deleteRoutes ,courseRoutes, getCourseRoutes,getAllUserRoutes , getUserCourseRoutes , getUserVideoRoutes , editUpdateRoutes]);
+app.use('/api',[adminRoutes,userLoginRoutes, deleteRoutes ,courseRoutes, getCourseRoutes,getAllUserRoutes , getUserCourseRoutes , getUserVideoRoutes , editUpdateRoutes , assesmentRoutes]);
 app.use('/test', (req,res) => {
   res.send("server working")
 })
 const PORT = process.env.DB_PORT;
-// sequelize.sync({force:true})
+// sequelize.sync({ alter:true})
 sequelize.sync()
   .then(() => {
     console.log("Database connected successfully.");

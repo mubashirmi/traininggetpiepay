@@ -6,6 +6,10 @@ const Video = require('./videoModel');
 const UserCourseStatus = require('./UserCourseStatus');
 const UserPartStatus = require('./UserPartStatus');
 const UserVideoStatus = require('./UserVideoStatus');
+const Assessment = require('./AssesmentModel');
+const Question = require('./QuestionModel');
+const UserAssessment = require('./UserAssesmentModel');
+const UserResponse = require('./UserResponseModel');
 
 // User-Course Association through UserCourseStatus
 User.belongsToMany(Course, { 
@@ -69,13 +73,42 @@ UserVideoStatus.belongsTo(Video, { foreignKey: 'videoId' });
 User.hasMany(UserVideoStatus, { foreignKey: 'userId' });
 Video.hasMany(UserVideoStatus, { foreignKey: 'videoId' });
 
+
+// Associations for assessments and parts
+Assessment.belongsTo(Part, { foreignKey: 'partId' });
+Part.hasOne(Assessment, { foreignKey: 'partId' });
+
+// Associations for questions and assessments
+Question.belongsTo(Assessment, { foreignKey: 'assessmentId' });
+Assessment.hasMany(Question, { foreignKey: 'assessmentId' });
+
+// Associations for user assessments and parts
+UserAssessment.belongsTo(Part, { foreignKey: 'partId' });
+Part.hasMany(UserAssessment, { foreignKey: 'partId' });
+
+// Associations for user assessments and users
+UserAssessment.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(UserAssessment, { foreignKey: 'userId' });
+
+// Associations for user responses and questions
+UserResponse.belongsTo(Question, { foreignKey: 'questionId' });
+Question.hasMany(UserResponse, { foreignKey: 'questionId' });
+
+// Associations for user responses and user assessments
+UserResponse.belongsTo(UserAssessment, { foreignKey: 'userAssessmentId' });
+UserAssessment.hasMany(UserResponse, { foreignKey: 'userAssessmentId' });
+
 module.exports = { 
     sequelize, 
-    User, 
-    Course, 
-    Part, 
-    Video, 
-    UserCourseStatus, 
-    UserPartStatus, 
-    UserVideoStatus 
+    User,
+    Course,
+    Part,
+    Video,
+    UserCourseStatus,
+    UserPartStatus,
+    UserVideoStatus,
+    Assessment,
+    Question,
+    UserAssessment,
+    UserResponse 
 };

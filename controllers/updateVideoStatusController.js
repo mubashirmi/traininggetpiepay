@@ -2,8 +2,7 @@ const { User , Video , Part , Course , UserCourseStatus , UserPartStatus , UserV
 const { Op, where } = require("sequelize");
 
 exports.completeVideo = async (req, res) => {
-
-    const { videoId , userId } = req.params;
+    const { videoId, userId } = req.params;
 
     try {
         // 1. Mark the current video as "completed"
@@ -29,8 +28,8 @@ exports.completeVideo = async (req, res) => {
             // If a next video exists, mark it as "started"
             await UserVideoStatus.upsert({ userId, videoId: nextVideo.id, status: "started" });
         } else {
-            await UserVideoStatus.upsert({ userId, videoId, status: "completed" });
-            // If no next video, mark the part as "completed"
+            // If no next video exists in the part
+            // Mark the part as "completed"
             await UserPartStatus.update(
                 { status: "completed" },
                 { where: { userId, partId: currentPartId } }
