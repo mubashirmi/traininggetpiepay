@@ -17,3 +17,4 @@ const UserResponse = sequelize.define('UserResponse', {
 });
 
 module.exports = UserResponse;
+

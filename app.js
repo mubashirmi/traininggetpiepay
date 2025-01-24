@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require("express");
+const cors = require("cors");
 const sequelize = require("./config/database");
 const adminRoutes = require("./routes/adminRoutes")
 const userLoginRoutes = require("./routes/authRoutes")
@@ -14,6 +15,7 @@ const assesmentRoutes = require("./routes/assesmentRoutes");
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.use('/api',[adminRoutes,userLoginRoutes, deleteRoutes ,courseRoutes, getCourseRoutes,getAllUserRoutes , getUserCourseRoutes , getUserVideoRoutes , editUpdateRoutes , assesmentRoutes]);
 app.use('/test', (req,res) => {
