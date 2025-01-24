@@ -1,29 +1,4 @@
-const { Course , Part , Video ,User , UserCourseStatus , UserVideoStatus , UserPartStatus } = require("../models/index");
-
-// Get all Courses for a single User
-// exports.getAllUserCourses = async (req, res) => {
-//     const { userId } = req.query;
-
-//     try {
-//         const courses = await Course.findAll({
-//             include: [
-//                 {
-//                     model: UserCourseStatus,
-//                     where: { userId },
-//                     required: false, // Allows fetching courses even if there's no status yet
-//                 },
-//                 {
-//                     model: Part,
-//                     include: Video,
-//                 },
-//             ],
-//         });
-
-//         res.status(200).json({ courses });
-//     } catch (error) {
-//         res.status(500).json({ message: 'Server error', error: error.message });
-//     }
-// };
+const { Course , Part , Video ,User , UserCourseStatus , Assessment, Question , UserVideoStatus , UserPartStatus } = require("../models/index");
 
 exports.getAllUserCourses = async (req, res) => {
     const { userId } = req.params;
@@ -119,6 +94,15 @@ exports.getUserSingleCourses = async (req, res) => {
                                 },
                             ],
                         },
+                        {
+                            model: Assessment,
+                            include: [
+                                {
+                                    model: Question,
+                                    attributes: ['id', 'text', 'options'], // Fetch question details
+                                },
+                            ],
+                        },
                     ],
                 },
             ],
@@ -145,6 +129,11 @@ exports.getUserSingleCourses = async (req, res) => {
                     videoFile: video.videoFile,
                     status: video.UserVideoStatuses?.[0]?.status || 'notStarted',
                 })),
+                questions: part.Assessment?.Questions.map((question) => ({
+                    questionId: question.id,
+                    text: question.text,
+                    options: question.options,
+                })) || [], // If no assessment exists, return an empty array
             })),
         };
 

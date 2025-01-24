@@ -36,38 +36,38 @@ exports.completeVideo = async (req, res) => {
             );
 
             // Find the next part in the course
-            const currentPart = await Part.findByPk(currentPartId);
-            const nextPart = await Part.findOne({
-                where: {
-                    courseId: currentPart.courseId,
-                    id: { [Op.gt]: currentPartId },
-                },
-                order: [['id', 'ASC']],
-            });
+            // const currentPart = await Part.findByPk(currentPartId);
+            // const nextPart = await Part.findOne({
+            //     where: {
+            //         courseId: currentPart.courseId,
+            //         id: { [Op.gt]: currentPartId },
+            //     },
+            //     order: [['id', 'ASC']],
+            // });
 
-            if (nextPart) {
-                // If a next part exists, mark it as "started"
-                await UserPartStatus.upsert({ userId, partId: nextPart.id, status: "started" });
+            // if (nextPart) {
+            //     // If a next part exists, mark it as "started"
+            //     await UserPartStatus.upsert({ userId, partId: nextPart.id, status: "started" });
 
-                // Mark the first video of the next part as "started"
-                const firstVideoOfNextPart = await Video.findOne({
-                    where: { partId: nextPart.id },
-                    order: [['id', 'ASC']],
-                });
-                if (firstVideoOfNextPart) {
-                    await UserVideoStatus.upsert({
-                        userId,
-                        videoId: firstVideoOfNextPart.id,
-                        status: "started",
-                    });
-                }
-            } else {
-                // If no next part exists, mark the course as "completed"
-                await UserCourseStatus.update(
-                    { status: "completed" },
-                    { where: { userId, courseId: currentPart.courseId } }
-                );
-            }
+            //     // Mark the first video of the next part as "started"
+            //     const firstVideoOfNextPart = await Video.findOne({
+            //         where: { partId: nextPart.id },
+            //         order: [['id', 'ASC']],
+            //     });
+            //     if (firstVideoOfNextPart) {
+            //         await UserVideoStatus.upsert({
+            //             userId,
+            //             videoId: firstVideoOfNextPart.id,
+            //             status: "started",
+            //         });
+            //     }
+            // } else {
+            //     // If no next part exists, mark the course as "completed"
+            //     await UserCourseStatus.update(
+            //         { status: "completed" },
+            //         { where: { userId, courseId: currentPart.courseId } }
+            //     );
+            // }
         }
 
         res.status(200).json({ message: "Video status updated successfully" });
