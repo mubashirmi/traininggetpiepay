@@ -68,16 +68,17 @@ exports.getAllUserCourses = async (req, res) => {
                 courseCategory: course.courseCategory,
                 courseThumbnailPhoto: course.courseThumbnailPhoto,
                 status: course.UserCourseStatuses?.[0]?.status || 'notStarted',
-                parts: course.Parts.map((part) => ({
-                    partId: part.id,
-                    partName: part.partName,
-                    status: part.UserPartStatuses?.[0]?.status || 'notStarted',
-                    videos: part.Videos.map((video) => ({
-                        videoId: video.id,
-                        videoName: video.videoName,
-                        status: video.UserVideoStatuses?.[0]?.status || 'notStarted',
-                    })),
-                })),
+                // parts: course.Parts.map((part) => ({
+                //     partId: part.id,
+                //     partName: part.partName,
+                //     status: part.UserPartStatuses?.[0]?.status || 'notStarted',
+                //     videos: part.Videos.map((video) => ({
+                //         videoId: video.id,
+                //         videoName: video.videoName,
+                //         videoFile: video.videoFile,
+                //         status: video.UserVideoStatuses?.[0]?.status || 'notStarted',
+                //     })),
+                // })),
             };
         });
 
