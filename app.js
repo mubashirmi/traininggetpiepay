@@ -12,12 +12,13 @@ const getUserVideoRoutes = require("./routes/userVideoRoutes");
 const deleteRoutes = require("./routes/deleteRoutes");
 const editUpdateRoutes = require("./routes/editRoutes");
 const assesmentRoutes = require("./routes/assesmentRoutes");
+const videoRoutes = require("./routes/videoRoutes");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use('/api',[adminRoutes,userLoginRoutes, deleteRoutes ,courseRoutes, getCourseRoutes,getAllUserRoutes , getUserCourseRoutes , getUserVideoRoutes , editUpdateRoutes , assesmentRoutes]);
+app.use('/api',[adminRoutes,userLoginRoutes, deleteRoutes ,courseRoutes, getCourseRoutes,getAllUserRoutes , getUserCourseRoutes , getUserVideoRoutes , editUpdateRoutes , assesmentRoutes , videoRoutes]);
 app.use('/test', (req,res) => {
   res.send("server working")
 })
