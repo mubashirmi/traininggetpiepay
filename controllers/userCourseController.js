@@ -42,6 +42,7 @@ exports.getAllUserCourses = async (req, res) => {
                 courseName: course.courseName,
                 courseCategory: course.courseCategory,
                 courseThumbnailPhoto: course.courseThumbnailPhoto,
+                courseSummary: course.courseSummary,
                 status: course.UserCourseStatuses?.[0]?.status || 'notStarted',
                 // parts: course.Parts.map((part) => ({
                 //     partId: part.id,
@@ -117,6 +118,7 @@ exports.getUserSingleCourses = async (req, res) => {
             courseId: course.id,
             courseName: course.courseName,
             courseCategory: course.courseCategory,
+            courseSummary: course.courseSummary,
             courseThumbnailPhoto: course.courseThumbnailPhoto,
             status: course.UserCourseStatuses?.[0]?.status || 'notStarted',
             parts: course.Parts.map((part) => ({
