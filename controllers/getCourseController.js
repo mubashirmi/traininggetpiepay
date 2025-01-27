@@ -1,26 +1,24 @@
-const { Course, Part, Video, Assessment, Question } = require("../models/index");
+const { Course, Part, Video, Assessment, Question , sequelize } = require("../models/index");
 
 // For admin to get All Courses 
 exports.getAllCourses = async (req, res) => {
     try {
+        // Fetch courses with a count of parts
         const courses = await Course.findAll({
-            include: {
-                model: Part,
-                include: [
-                    {
-                        model: Video,
-                    },
-                    {
-                        model: Assessment,
-                        include: [
-                            {
-                                model: Question,
-                                attributes: ['id', 'text', 'options'], // Fetch only necessary attributes
-                            },
-                        ],
-                    },
-                ],
-            },
+            attributes: [
+                'id',
+                'courseName',
+                'courseCategory',
+                'courseThumbnailPhoto',
+                [sequelize.fn('COUNT', sequelize.col('Parts.id')), 'partCount'], // Count the number of parts
+            ],
+            include: [
+                {
+                    model: Part,
+                    attributes: [], // Exclude Part details, we only need the count
+                },
+            ],
+            group: ['Course.id'], // Group by Course to count parts correctly
         });
 
         if (!courses || courses.length === 0) {
@@ -29,7 +27,7 @@ exports.getAllCourses = async (req, res) => {
 
         res.status(200).json(courses);
     } catch (err) {
-        res.status(500).json({ message: "Internal Server Error", error: err });
+        res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
 };
 
