@@ -1,4 +1,4 @@
-const { Course,Part,Video,UserCourseStatus,UserPartStatus,UserVideoStatus , Assessment , Question } = require("../models/index");
+const { Course, Part, Video, UserCourseStatus, UserPartStatus, UserVideoStatus, Assessment, Question } = require("../models/index");
 
 exports.deleteCourse = async (req, res) => {
     const { courseId } = req.params;
@@ -8,15 +8,24 @@ exports.deleteCourse = async (req, res) => {
         const parts = await Part.findAll({ where: { courseId } });
 
         for (const part of parts) {
-            // Delete questions and assessment for each part
+            // Delete assessment and its questions
             const assessment = await Assessment.findOne({ where: { partId: part.id } });
+
             if (assessment) {
                 await Question.destroy({ where: { assessmentId: assessment.id } });
                 await Assessment.destroy({ where: { id: assessment.id } });
             }
 
-            // Delete videos and video statuses
-            await UserVideoStatus.destroy({ where: { partId: part.id } });
+            // Find all videos in this part
+            const videos = await Video.findAll({ where: { partId: part.id } });
+            const videoIds = videos.map((video) => video.id);
+
+            // Delete video statuses (fixing partId error)
+            if (videoIds.length > 0) {
+                await UserVideoStatus.destroy({ where: { videoId: videoIds } });
+            }
+
+            // Delete videos
             await Video.destroy({ where: { partId: part.id } });
 
             // Delete part statuses
