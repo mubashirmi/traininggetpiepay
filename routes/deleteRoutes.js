@@ -11,6 +11,6 @@ router.delete("/deleteUser/:userId", deleteUser );
 router.delete("/deleteCourse/:courseId", deleteCourse );
 router.delete("/deletePart/:partId", deletePart );
 router.delete("/deleteVideo/:videoId", deleteVideo );
-router.delete("/question/:questionId", deleteQuestion );
+router.delete("/deleteQuestion/:questionId", deleteQuestion );
 
 module.exports =router

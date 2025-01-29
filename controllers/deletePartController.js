@@ -1,4 +1,4 @@
-const {  Part ,Video ,UserPartStatus,UserVideoStatus , Assessment , Question} = require("../models/index");
+const { Part, Video, UserPartStatus, UserVideoStatus, Assessment, Question } = require("../models/index");
 
 exports.deletePart = async (req, res) => {
     const { partId } = req.params;
@@ -11,8 +11,16 @@ exports.deletePart = async (req, res) => {
             await Assessment.destroy({ where: { id: assessment.id } });
         }
 
-        // Delete videos and video statuses
-        await UserVideoStatus.destroy({ where: { partId } });
+        // Find all videos linked to this part
+        const videos = await Video.findAll({ where: { partId } });
+        const videoIds = videos.map(video => video.id);
+
+        // Delete video statuses using videoId instead of partId
+        if (videoIds.length > 0) {
+            await UserVideoStatus.destroy({ where: { videoId: videoIds } });
+        }
+
+        // Delete videos
         await Video.destroy({ where: { partId } });
 
         // Delete part statuses
