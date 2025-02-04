@@ -74,6 +74,11 @@ exports.addCourse = async (req, res) => {
 
         res.status(201).json({ message: "Course created successfully", course });
     } catch (err) {
+        if (err.name === 'SequelizeValidationError') {
+            const errors = err.errors.map(e => e.message);
+            return res.status(400).json({ message: "Validation Error", errors });
+        }
+        console.error(err);
         res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
 };
