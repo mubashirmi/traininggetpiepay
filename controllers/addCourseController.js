@@ -35,14 +35,17 @@ exports.addCourse = async (req, res) => {
                 if (part.videos && Array.isArray(part.videos)) {
                     for (const video of part.videos) {
                         // Validate video fields
-                        if (!video.videoName || !video.videoFile || typeof video.videoTime !== "number") {
-                            throw new Error("All video fields are required",typeof video.videoTime);
+                        if (!video.videoName || !video.videoFile || typeof video.videoTime !== "string") {
+                            throw new Error("All video fields are required");
                         }
+
+                        // Convert videoTime (HH:MM:SS) into minutes
+                        const videoTimeInMinutes = convertTimeToMinutes(video.videoTime);
 
                         await Video.create({
                             videoName: video.videoName,
                             videoFile: video.videoFile,
-                            videoTime: video.videoTime,
+                            videoTime: videoTimeInMinutes,  // Save the converted value in minutes
                             videoStatus: "notStarted",
                             partId: newPart.id,
                         });
@@ -84,4 +87,10 @@ exports.addCourse = async (req, res) => {
         console.error(err);
         res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
+};
+
+// Helper function to convert HH:MM:SS format to total minutes
+const convertTimeToMinutes = (timeString) => {
+    const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    return (hours * 60) + minutes + (seconds / 60); // Convert the time into minutes
 };
