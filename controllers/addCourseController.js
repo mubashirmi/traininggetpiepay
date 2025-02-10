@@ -35,8 +35,8 @@ exports.addCourse = async (req, res) => {
                 if (part.videos && Array.isArray(part.videos)) {
                     for (const video of part.videos) {
                         // Validate video fields
-                        if (!video.videoName || !video.videoFile || typeof video.videoTime !== "string") {
-                            throw new Error("All video fields are required");
+                        if (!video.videoName || !video.videoFile || typeof video.videoTime !== "number") {
+                            throw new Error("All video fields are required",typeof video.videoTime);
                         }
 
                         await Video.create({
