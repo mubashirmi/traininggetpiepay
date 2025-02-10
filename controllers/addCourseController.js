@@ -1,18 +1,19 @@
 const { Course, Part, Video , Assessment , Question } = require("../models/index");
 
 exports.addCourse = async (req, res) => {
-    const { courseName, courseCategory, courseThumbnailPhoto, courseSummary, parts } = req.body;
+    const { courseName, courseCategory, courseDescription, courseThumbnailPhoto, courseSummary, parts } = req.body;
 
     try {
         // Validate course fields
-        if (!courseName || !courseCategory || !courseThumbnailPhoto || !courseSummary) {
-            return res.status(400).json({ message: "All course fields are required" });
+        if (!courseName || !courseCategory || courseDescription || !courseThumbnailPhoto || !courseSummary) {
+            return res.status(400).json({ message: "All Course fields are required" });
         }
 
         // Create the course
         const course = await Course.create({
             courseName,
             courseCategory,
+            courseDescription,
             courseThumbnailPhoto,
             courseSummary,
         });

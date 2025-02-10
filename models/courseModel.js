@@ -10,6 +10,10 @@ const Course = sequelize.define('Course',{
         type : DataTypes.STRING,
         allowNull:false,
     },
+    courseDescription : {
+        type : DataTypes.STRING,
+        allowNull:false,
+    },
     courseThumbnailPhoto : {
         type : DataTypes.STRING,
         allowNull:false,

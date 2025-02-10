@@ -2,7 +2,7 @@ const { Course, Video, Part , Assessment , Question} = require("../models/index"
 
 exports.editCourse = async (req, res) => {
     const { courseId } = req.params;
-    const { courseSummary, courseCategory, courseThumbnailPhoto, newPart } = req.body;
+    const { courseSummary, courseCategory, courseThumbnailPhoto, courseDescription, newPart } = req.body;
 
     try {
         // Update course details
@@ -11,6 +11,7 @@ exports.editCourse = async (req, res) => {
                 courseSummary,
                 courseCategory,
                 courseThumbnailPhoto,
+                courseDescription,
             },
             { where: { id: courseId } }
         );

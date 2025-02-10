@@ -10,6 +10,7 @@ exports.getAllCourses = async (req, res) => {
                 'courseName',
                 'courseCategory',
                 'courseThumbnailPhoto',
+                'courseDescription',
                 [sequelize.fn('COUNT', sequelize.col('Parts.id')), 'partCount'], // Count the number of parts
             ],
             include: [

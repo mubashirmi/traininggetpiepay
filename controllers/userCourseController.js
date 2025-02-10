@@ -41,6 +41,7 @@ exports.getAllUserCourses = async (req, res) => {
                 courseId: course.id,
                 courseName: course.courseName,
                 courseCategory: course.courseCategory,
+                courseDescription: course.courseDescription,
                 courseThumbnailPhoto: course.courseThumbnailPhoto,
                 courseSummary: course.courseSummary,
                 status: course.UserCourseStatuses?.[0]?.status || 'notStarted',
