@@ -24,7 +24,7 @@ app.use('/test', (req,res) => {
   res.send("server working")
 })
 const PORT = process.env.DB_PORT;
-// sequelize.sync({ alter:true})
+// sequelize.sync({ force : true})
 sequelize.sync()
   .then(() => {
     console.log("Database connected successfully.");
