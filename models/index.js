@@ -10,6 +10,7 @@ const Assessment = require('./AssesmentModel');
 const Question = require('./QuestionModel');
 const UserAssessment = require('./UserAssesmentModel');
 const UserResponse = require('./UserResponseModel');
+const UserPartPdfStatus = require('./UserPartPdfStatus');
 
 // User-Course Association through UserCourseStatus
 User.belongsToMany(Course, { 
@@ -98,6 +99,18 @@ Question.hasMany(UserResponse, { foreignKey: 'questionId' });
 UserResponse.belongsTo(UserAssessment, { foreignKey: 'userAssessmentId' });
 UserAssessment.hasMany(UserResponse, { foreignKey: 'userAssessmentId' });
 
+// New associations for PDF status:
+// We want to track, for each user and part, the PDF view status.
+// A many-to-many style association using a through table:
+User.belongsToMany(Part, { through: UserPartPdfStatus, foreignKey: 'userId', otherKey: 'partId' });
+Part.belongsToMany(User, { through: UserPartPdfStatus, foreignKey: 'partId', otherKey: 'userId' });
+
+// Optionally, if you want to access these relationships directly:
+UserPartPdfStatus.belongsTo(User, { foreignKey: 'userId' });
+UserPartPdfStatus.belongsTo(Part, { foreignKey: 'partId' });
+User.hasMany(UserPartPdfStatus, { foreignKey: 'userId' });
+Part.hasMany(UserPartPdfStatus, { foreignKey: 'partId' });
+
 module.exports = { 
     sequelize, 
     User,
@@ -106,6 +119,7 @@ module.exports = {
     Video,
     UserCourseStatus,
     UserPartStatus,
+    UserPartPdfStatus,
     UserVideoStatus,
     Assessment,
     Question,

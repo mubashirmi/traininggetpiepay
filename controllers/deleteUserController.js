@@ -1,4 +1,4 @@
-const { User , UserCourseStatus , UserPartStatus , UserVideoStatus, UserAssessment , UserResponse } = require("../models/index");
+const { User, UserCourseStatus, UserPartStatus, UserVideoStatus, UserAssessment, UserResponse, UserPartPdfStatus } = require("../models/index");
 
 exports.deleteUser = async (req, res) => {
     const { userId } = req.params;
@@ -15,6 +15,7 @@ exports.deleteUser = async (req, res) => {
         await UserCourseStatus.destroy({ where: { userId } });
         await UserPartStatus.destroy({ where: { userId } });
         await UserVideoStatus.destroy({ where: { userId } });
+        await UserPartPdfStatus.destroy({ where: { userId } });
 
         // Finally, delete the user
         await User.destroy({ where: { id: userId } });

@@ -1,11 +1,11 @@
-const { Course, Part, Video , Assessment , Question } = require("../models/index");
+const { Course, Part, Video, Assessment, Question } = require("../models/index");
 
 exports.addCourse = async (req, res) => {
     const { courseName, courseCategory, courseDescription, courseThumbnailPhoto, courseSummary, parts } = req.body;
 
     try {
         // Validate course fields
-        if (!courseName || !courseCategory || courseDescription || !courseThumbnailPhoto || !courseSummary) {
+        if (!courseName || !courseCategory || !courseDescription || !courseThumbnailPhoto || !courseSummary) {
             return res.status(400).json({ message: "All Course fields are required" });
         }
 
@@ -25,9 +25,11 @@ exports.addCourse = async (req, res) => {
                     throw new Error("Part name is required");
                 }
 
+                // Create the new part – include pdfLink if provided
                 const newPart = await Part.create({
                     partName: part.partName,
                     courseId: course.id,
+                    pdfLink: part.pdfLink || null,
                 });
 
                 if (part.videos && Array.isArray(part.videos)) {

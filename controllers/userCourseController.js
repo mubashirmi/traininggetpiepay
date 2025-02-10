@@ -1,4 +1,4 @@
-const { Course , Part , Video ,User , UserCourseStatus , Assessment, Question , UserVideoStatus , UserPartStatus } = require("../models/index");
+const { Course, Part, Video, User, UserCourseStatus, Assessment, Question, UserVideoStatus, UserPartStatus, UserPartPdfStatus } = require("../models/index");
 
 exports.getAllUserCourses = async (req, res) => {
     const { userId } = req.params;
@@ -10,7 +10,7 @@ exports.getAllUserCourses = async (req, res) => {
                 {
                     model: UserCourseStatus,
                     where: { userId },
-                    required: false, // Include courses even if no status exists for the user
+                    required: false,
                 },
                 {
                     model: Part,
@@ -18,7 +18,7 @@ exports.getAllUserCourses = async (req, res) => {
                         {
                             model: UserPartStatus,
                             where: { userId },
-                            required: false, // Include parts even if no status exists
+                            required: false,
                         },
                         {
                             model: Video,
@@ -26,7 +26,7 @@ exports.getAllUserCourses = async (req, res) => {
                                 {
                                     model: UserVideoStatus,
                                     where: { userId },
-                                    required: false, // Include videos even if no status exists
+                                    required: false,
                                 },
                             ],
                         },
@@ -45,17 +45,6 @@ exports.getAllUserCourses = async (req, res) => {
                 courseThumbnailPhoto: course.courseThumbnailPhoto,
                 courseSummary: course.courseSummary,
                 status: course.UserCourseStatuses?.[0]?.status || 'notStarted',
-                // parts: course.Parts.map((part) => ({
-                //     partId: part.id,
-                //     partName: part.partName,
-                //     status: part.UserPartStatuses?.[0]?.status || 'notStarted',
-                //     videos: part.Videos.map((video) => ({
-                //         videoId: video.id,
-                //         videoName: video.videoName,
-                //         videoFile: video.videoFile,
-                //         status: video.UserVideoStatuses?.[0]?.status || 'notStarted',
-                //     })),
-                // })),
             };
         });
 
@@ -76,7 +65,7 @@ exports.getUserSingleCourses = async (req, res) => {
                 {
                     model: UserCourseStatus,
                     where: { userId },
-                    required: false, // Include course even if no status exists for the user
+                    required: false,
                 },
                 {
                     model: Part,
@@ -84,7 +73,7 @@ exports.getUserSingleCourses = async (req, res) => {
                         {
                             model: UserPartStatus,
                             where: { userId },
-                            required: false, // Include parts even if no status exists
+                            required: false,
                         },
                         {
                             model: Video,
@@ -92,7 +81,7 @@ exports.getUserSingleCourses = async (req, res) => {
                                 {
                                     model: UserVideoStatus,
                                     where: { userId },
-                                    required: false, // Include videos even if no status exists
+                                    required: false,
                                 },
                             ],
                         },
@@ -101,9 +90,14 @@ exports.getUserSingleCourses = async (req, res) => {
                             include: [
                                 {
                                     model: Question,
-                                    attributes: ['id', 'text', 'options'], // Fetch question details
+                                    attributes: ['id', 'text', 'options'],
                                 },
                             ],
+                        },
+                        {
+                            model: UserPartPdfStatus,
+                            where: { userId },
+                            required: false,
                         },
                     ],
                 },
@@ -125,6 +119,8 @@ exports.getUserSingleCourses = async (req, res) => {
             parts: course.Parts.map((part) => ({
                 partId: part.id,
                 partName: part.partName,
+                pdfLink: part.pdfLink,
+                pdfStatus: (part.UserPartPdfStatuses && part.UserPartPdfStatuses.length > 0) ? part.UserPartPdfStatuses[0].pdfStatus : 'unseen',
                 status: part.UserPartStatuses?.[0]?.status || 'notStarted',
                 videos: part.Videos.map((video) => ({
                     videoId: video.id,
@@ -136,7 +132,7 @@ exports.getUserSingleCourses = async (req, res) => {
                     questionId: question.id,
                     text: question.text,
                     options: question.options,
-                })) || [], // If no assessment exists, return an empty array
+                })) || [],
             })),
         };
 
@@ -146,28 +142,28 @@ exports.getUserSingleCourses = async (req, res) => {
     }
 };
 
-exports.startCourse = async ( req ,res ) => {
-    const { userId , courseId } = req.body;
+exports.startCourse = async (req, res) => {
+    const { userId, courseId } = req.body;
 
-    try{
-        await UserCourseStatus.upsert({ userId , courseId , status : "started"});
-        // To find first Part of course
+    try {
+        await UserCourseStatus.upsert({ userId, courseId, status: "started" });
         const firstPart = await Part.findOne({
-            where : {courseId},
-            order : [[ 'id' , 'ASC' ]]
-        })
-        if(firstPart){
-            await UserPartStatus.upsert({ userId , partId : firstPart.id , status : "started"});
-            // To find first Video of Part
+            where: { courseId },
+            order: [['id', 'ASC']],
+        });
+        if (firstPart) {
+            await UserPartStatus.upsert({ userId, partId: firstPart.id, status: "started" });
             const firstVideo = await Video.findOne({
-                where : { partId: firstPart.id },
-                order : [[ 'id' , 'ASC' ]]
+                where: { partId: firstPart.id },
+                order: [['id', 'ASC']],
             });
-            await UserVideoStatus.upsert({userId, videoId:firstVideo.id , status : "started"});
+            if (firstVideo) {
+                await UserVideoStatus.upsert({ userId, videoId: firstVideo.id, status: "started" });
+            }
         }
 
-        res.status(200).json({ message : "Course Started Successfully" })
-    }catch(err){
-        res.status(500).json({ message : "Internnal Server Error" , error : err })
+        res.status(200).json({ message: "Course Started Successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
-}
+};

@@ -1,4 +1,4 @@
-const { Course, Video, Part , Assessment , Question} = require("../models/index");
+const { Course, Video, Part, Assessment, Question, UserPartPdfStatus } = require("../models/index");
 
 exports.editCourse = async (req, res) => {
     const { courseId } = req.params;
@@ -18,15 +18,15 @@ exports.editCourse = async (req, res) => {
 
         // Add a new part if provided
         if (newPart) {
-            const { partName, videos, questions } = newPart;
+            const { partName, pdfLink, videos, questions } = newPart;
 
             // Validate videos
             if (!videos || videos.length === 0) {
                 return res.status(400).json({ message: "At least one video is required to add a new part" });
             }
 
-            // Create the new part
-            const part = await Part.create({ partName, courseId });
+            // Create the new part, including pdfLink if provided
+            const part = await Part.create({ partName, courseId, pdfLink: pdfLink || null });
 
             // Add videos
             for (const video of videos) {
@@ -60,15 +60,14 @@ exports.editCourse = async (req, res) => {
     }
 };
 
-
 exports.editPart = async (req, res) => {
     const { partId } = req.params;
-    const { partName, newVideo, questions } = req.body;
+    const { partName, pdfLink, newVideo, questions } = req.body;
 
     try {
-        // Update part name
-        if (partName) {
-            await Part.update({ partName }, { where: { id: partId } });
+        // Update part name and pdfLink if provided
+        if (partName || pdfLink) {
+            await Part.update({ partName, pdfLink }, { where: { id: partId } });
         }
 
         // Add new video
@@ -108,17 +107,33 @@ exports.editPart = async (req, res) => {
     }
 };
 
+exports.updatePdfStatus = async (req, res) => {
+    const { userId, partId } = req.params;  // Assume these come as URL parameters
 
-exports.editVideo = async ( req, res ) => {
+    try {
+        // Upsert: update if record exists, or create new with pdfStatus as 'seen'
+        await UserPartPdfStatus.upsert({
+            userId,
+            partId,
+            pdfStatus: 'seen'
+        });
+
+        res.status(200).json({ message: "PDF status updated to seen" });
+    } catch (err) {
+        res.status(500).json({ message: "Internal Server Error", error: err.message });
+    }
+};
+
+exports.editVideo = async (req, res) => {
     const { videoId } = req.params;
     const { videoName, videoFile, videoTime } = req.body;
     try {
-        await Video.update({ videoName , videoFile , videoTime },{where :{id : videoId}});
+        await Video.update({ videoName, videoFile, videoTime }, { where: { id: videoId } });
         res.status(200).json({ message: "Video updated successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: err.message });   
+    } catch (err) {
+        res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
-}
+};
 
 exports.editQuestion = async (req, res) => {
     const { questionId } = req.params;

@@ -1,4 +1,4 @@
-const { Part, Video, UserPartStatus, UserVideoStatus, Assessment, Question } = require("../models/index");
+const { Part, Video, UserPartStatus, UserVideoStatus, Assessment, Question, UserPartPdfStatus } = require("../models/index");
 
 exports.deletePart = async (req, res) => {
     const { partId } = req.params;
@@ -10,6 +10,9 @@ exports.deletePart = async (req, res) => {
             await Question.destroy({ where: { assessmentId: assessment.id } });
             await Assessment.destroy({ where: { id: assessment.id } });
         }
+
+        // Delete PDF status for this part
+        await UserPartPdfStatus.destroy({ where: { partId } });
 
         // Find all videos linked to this part
         const videos = await Video.findAll({ where: { partId } });
@@ -34,3 +37,4 @@ exports.deletePart = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
 };
+
