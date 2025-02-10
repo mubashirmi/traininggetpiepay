@@ -35,7 +35,7 @@ exports.addCourse = async (req, res) => {
                 if (part.videos && Array.isArray(part.videos)) {
                     for (const video of part.videos) {
                         // Validate video fields
-                        if (!video.videoName || !video.videoFile || !video.videoTime) {
+                        if (!video.videoName || !video.videoFile || typeof video.videoTime !== "string") {
                             throw new Error("All video fields are required");
                         }
 
