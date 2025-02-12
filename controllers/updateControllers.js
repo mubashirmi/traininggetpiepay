@@ -61,8 +61,8 @@ exports.editCourse = async (req, res) => {
 };
 
 exports.editPart = async (req, res) => {
-    const { partId } = req.params;
-    const { partName, pdfLink, newVideo, questions } = req.body;
+    const { partId } = req.params; 
+    const { partName, pdfLink, videos , questions } = req.body;
 
     try {
         // Update part name and pdfLink if provided
@@ -71,11 +71,11 @@ exports.editPart = async (req, res) => {
         }
 
         // Add new video
-        if (newVideo) {
+        if (videos) {
             await Video.create({
-                videoName: newVideo.videoName,
-                videoFile: newVideo.videoFile,
-                videoTime: newVideo.videoTime,
+                videoName: videos.videoName,
+                videoFile: videos.videoFile,
+                videoTime: videos.videoTime,
                 videoStatus: "notStarted",
                 partId,
             });
