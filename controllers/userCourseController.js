@@ -22,7 +22,6 @@ exports.getAllUserCourses = async (req, res) => {
                         },
                         {
                             model: Video,
-                            order: [['id', 'ASC']],
                             include: [
                                 {
                                     model: UserVideoStatus,
@@ -78,7 +77,6 @@ exports.getUserSingleCourses = async (req, res) => {
                         },
                         {
                             model: Video,
-                            order: [['id', 'ASC']],
                             include: [
                                 {
                                     model: UserVideoStatus,
@@ -124,12 +122,15 @@ exports.getUserSingleCourses = async (req, res) => {
                 pdfLink: part.pdfLink,
                 pdfStatus: (part.UserPartPdfStatuses && part.UserPartPdfStatuses.length > 0) ? part.UserPartPdfStatuses[0].pdfStatus : 'unseen',
                 status: part.UserPartStatuses?.[0]?.status || 'notStarted',
-                videos: part.Videos.map((video) => ({
-                    videoId: video.id,
-                    videoName: video.videoName,
-                    videoFile: video.videoFile,
-                    status: video.UserVideoStatuses?.[0]?.status || 'notStarted',
-                })),
+                // Sort videos by videoId in descending order
+                videos: part.Videos
+                    .sort((a, b) => b.id - a.id) // Sort by the `id` property of Video model
+                    .map((video) => ({
+                        videoId: video.id,
+                        videoName: video.videoName,
+                        videoFile: video.videoFile,
+                        status: video.UserVideoStatuses?.[0]?.status || 'notStarted',
+                    })),
                 questions: part.Assessment?.Questions.map((question) => ({
                     questionId: question.id,
                     text: question.text,
@@ -143,6 +144,7 @@ exports.getUserSingleCourses = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 exports.startCourse = async (req, res) => {
     const { userId, courseId } = req.body;
