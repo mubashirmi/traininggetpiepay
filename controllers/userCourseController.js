@@ -122,15 +122,15 @@ exports.getUserSingleCourses = async (req, res) => {
                 pdfLink: part.pdfLink,
                 pdfStatus: (part.UserPartPdfStatuses && part.UserPartPdfStatuses.length > 0) ? part.UserPartPdfStatuses[0].pdfStatus : 'unseen',
                 status: part.UserPartStatuses?.[0]?.status || 'notStarted',
-                // Sort videos by videoId in descending order
                 videos: part.Videos
-                    .sort((a, b) => b.id - a.id) // Sort by the `id` property of Video model
                     .map((video) => ({
                         videoId: video.id,
                         videoName: video.videoName,
                         videoFile: video.videoFile,
                         status: video.UserVideoStatuses?.[0]?.status || 'notStarted',
-                    })),
+                    }))
+                    // Sort videos by videoId in ascending order
+                    .sort((a, b) => a.videoId - b.videoId),
                 questions: part.Assessment?.Questions.map((question) => ({
                     questionId: question.id,
                     text: question.text,
