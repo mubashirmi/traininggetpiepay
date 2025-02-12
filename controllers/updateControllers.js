@@ -61,7 +61,7 @@ exports.editCourse = async (req, res) => {
 };
 
 exports.editPart = async (req, res) => {
-    const { partId } = req.params; 
+    const { partId } = req.params;
     const { partName, pdfLink, videos , questions } = req.body;
 
     try {

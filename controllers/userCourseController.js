@@ -22,6 +22,7 @@ exports.getAllUserCourses = async (req, res) => {
                         },
                         {
                             model: Video,
+                            order: [['id', 'ASC']],
                             include: [
                                 {
                                     model: UserVideoStatus,
@@ -77,6 +78,7 @@ exports.getUserSingleCourses = async (req, res) => {
                         },
                         {
                             model: Video,
+                            order: [['id', 'ASC']],
                             include: [
                                 {
                                     model: UserVideoStatus,
