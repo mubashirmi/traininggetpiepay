@@ -1,5 +1,5 @@
 const { Assessment, Question , UserAssessment , UserResponse, UserPartStatus, Part, UserVideoStatus, Video } = require('../models/index');
-
+const {Op} = require("sequelize")
 exports.getAssessmentQuestions = async (req, res) => {
     const { partId } = req.params;
 

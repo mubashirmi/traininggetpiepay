@@ -1,4 +1,6 @@
+const app = require("../app");
 const { Course, Part, Video, Assessment, Question } = require("../models/index");
+const { adminLogin } = require("./adminController");
 
 exports.addCourse = async (req, res) => {
     const { courseName, courseCategory, courseDescription, courseThumbnailPhoto, courseSummary, parts } = req.body;

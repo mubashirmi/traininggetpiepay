@@ -13,16 +13,8 @@ const UserResponse = require('./UserResponseModel');
 const UserPartPdfStatus = require('./UserPartPdfStatus');
 
 // User-Course Association through UserCourseStatus
-User.belongsToMany(Course, { 
-    through: UserCourseStatus, 
-    foreignKey: 'userId', 
-    otherKey: 'courseId' 
-});
-Course.belongsToMany(User, { 
-    through: UserCourseStatus, 
-    foreignKey: 'courseId', 
-    otherKey: 'userId' 
-});
+User.belongsToMany(Course, { through: UserCourseStatus, foreignKey: 'userId', otherKey: 'courseId' });
+Course.belongsToMany(User, { through: UserCourseStatus, foreignKey: 'courseId', otherKey: 'userId' });
 
 // Explicitly define associations for UserCourseStatus
 UserCourseStatus.belongsTo(User, { foreignKey: 'userId' });

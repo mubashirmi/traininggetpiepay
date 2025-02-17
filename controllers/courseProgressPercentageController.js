@@ -1,59 +1,108 @@
-const { Course, Part, Video, UserVideoStatus } = require("../models/index");
+const { Course, Part, Video, UserVideoStatus, UserAssessment } = require('../models/index');
 
-exports.getCourseCompletionPercentage = async (req, res) => {
-    const { userId, courseId } = req.params;
-
-    try {
-        // Fetch all parts and videos of the course
-        const parts = await Part.findAll({
-            where: { courseId },
-            include: {
-                model: Video,
-                include: {
-                    model: UserVideoStatus,
-                    where: { userId, status: 'completed' },  // Only include videos that the user has completed
-                    required: false,  // Include all videos even if not completed
-                },
-            },
+exports.getDetailedCourseProgress = async (req, res) => {
+  console.log("dfffffffffffffffffff")
+  const { userId, courseId } = req.params;
+  try {
+    // Fetch the course with its parts and videos
+    const course = await Course.findOne({
+      where: { id: courseId },
+      include: [
+        {
+          model: Part,
+          include: [
+            { model: Video } // Fetch videos for each part; we will fetch user statuses separately.
+          ]
+        }
+      ]
+    });
+    
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    
+    let totalPartProgress = 0;
+    let partsProgress = [];
+    console.log(course.Parts.length)
+    // Loop over each part of the course
+    for (const part of course.Parts) {
+      // For each part, determine the number of components: (# videos + 1 for assessment)
+      const videos = part.Videos;
+      const numVideos = videos.length;
+      const componentCount = numVideos + 1; // +1 for assessment
+      const componentWeight = 100 / componentCount; // weight (in percentage) for each component within the part
+      
+      let partProgress = 0;
+      let videoDetails = [];
+      
+      // Process each video in the part
+      for (const video of videos) {
+        // Retrieve the user's progress record for the video
+        const uvStatus = await UserVideoStatus.findOne({
+          where: { userId, videoId: video.id }
         });
-
-        // Calculate total time of all videos and completed videos
-        let totalTime = 0;
-        let completedTime = 0;
-
-        parts.forEach(part => {
-            part.Videos.forEach(video => {
-                const videoTimeInMinutes = convertTimeToMinutes(video.videoTime);
-
-                totalTime += videoTimeInMinutes;
-
-                if (video.UserVideoStatuses && video.UserVideoStatuses.length > 0) {
-                    completedTime += videoTimeInMinutes;
-                }
-            });
-        });
-
-        if (totalTime === 0) {
-            return res.status(200).json({ message: "No videos found for this course" });
+        
+        // Ensure videoTime exists and is valid
+        const totalDuration = video.videoTime; // in minutes
+        if (!totalDuration || totalDuration <= 0) {
+          console.log(`Skipping video ${video.id} due to invalid video time.`);
+          continue;
         }
 
-        // Calculate the completion percentage
-        const completionPercentage = (completedTime / totalTime) * 100;
-
-        res.status(200).json({
-            courseId,
-            userId,
-            completionPercentage: completionPercentage.toFixed(2), // rounding to 2 decimal points
-            totalTime,
-            completedTime,
+        let videoProgress = 0;
+        if (uvStatus) {
+          // Ensure currentTime is valid
+          const currentTime = uvStatus.currentTime || 0;
+          console.log(`User ${userId} progress for video ${video.id}: currentTime = ${currentTime}, totalDuration = ${totalDuration}`);
+          
+          // Calculate the fraction of the video that was watched
+          videoProgress = Math.min((currentTime / totalDuration) * componentWeight, componentWeight);
+        }
+        partProgress += videoProgress;
+        videoDetails.push({
+          videoId: video.id,
+          videoName: video.videoName,
+          totalDuration,
+          currentTime: uvStatus ? uvStatus.currentTime : 0,
+          progress: videoProgress
         });
-    } catch (err) {
-        res.status(500).json({ message: "Internal Server Error", error: err.message });
-    }
-};
+      }
+      
+      // For the assessment: Check if the user has completed it for this part.
+      const userAssessment = await UserAssessment.findOne({
+        where: { userId, partId: part.id, status: 'completed' }
+      });
+      const assessmentProgress = userAssessment ? componentWeight : 0;
+      partProgress += assessmentProgress;
 
-// Helper function to convert time in HH:MM:SS format to minutes
-const convertTimeToMinutes = (timeString) => {
-    const [hours, minutes, seconds] = timeString.split(':').map(Number);
-    return (hours * 60) + minutes + (seconds / 60);
+      console.log("Assessment Percentage ----->", assessmentProgress);
+      
+      // Save progress details for this part
+      partsProgress.push({
+        partId: part.id,
+        partName: part.partName,
+        progress: partProgress,  // part progress as a percentage (0 - 100)
+        componentWeight,
+        videoDetails,
+        assessmentCompleted: !!userAssessment
+      });
+      
+      totalPartProgress += partProgress;
+    }
+    
+    // Overall course progress: average the progress of all parts.
+    const overallCourseProgress = course.Parts.length > 0 ? (totalPartProgress / course.Parts.length) : 0;
+    
+    console.log(`Overall Course Progress: ${overallCourseProgress.toFixed(2)}%`);
+    
+    res.status(200).json({
+      courseId: course.id,
+      courseName: course.courseName,
+      overallCourseProgress: overallCourseProgress.toFixed(2),
+      parts: partsProgress
+    });
+  } catch (err) {
+    console.error('Error calculating course progress:', err.message);
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
+  }
 };
